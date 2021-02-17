@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
+use JsonSerializable;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProductRepository;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
-class Product
+class Product implements JsonSerializable
 {
     /**
      * @ORM\Id
@@ -71,5 +72,15 @@ class Product
         $this->description = $description;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+       return [
+           'id' => $this->getId(),
+           'name' => $this->getName(),
+           'description' => $this->getDescription(),
+           'price' => $this->getPrice(),
+       ];
     }
 }
