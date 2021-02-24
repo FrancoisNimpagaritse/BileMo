@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  */
-class User implements UserInterface
+class User implements UserInterface, JsonSerializable
 {
     /**
      * @ORM\Id
@@ -40,7 +41,7 @@ class User implements UserInterface
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users2222")
+     * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users")
      */
     private $client;
 
@@ -145,4 +146,13 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function jsonSerialize(): array
+    {
+       return [
+           'id' => $this->getId(),
+           'email' => $this->getEmail(),
+           'name' => $this->getName(),
+       ];
+    } 
 }

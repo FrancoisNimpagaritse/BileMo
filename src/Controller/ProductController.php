@@ -14,30 +14,23 @@ class ProductController extends AbstractController
 {
     /**
      * Permet de récuper la liste des produits en BD et d'envoyer le résultat aux clients
-     * @Route("/products", name="products")
+     * 
+     * @Route("/api/products", name="products", methods={"GET"})
      */
-    public function listProducts(ProductRepository $repo, SerializerInterface $serializer): Response
+    public function getProductsAction(ProductRepository $repo): Response
     {
         $products = $repo->findAll();
-        //$data = $serializer->serialize($products, "json");
         
-        //$response = new Response($data);
-        //$response->headers->set('Content-Type', 'application/json');
-
         return new JsonResponse($products);
     }
 
     /**
-     * Permet de récuper les détailsd'un produit en BD et d'envoyer le résultat aux clients
-     * @Route("/products/{id}", name="products_show")
+     * Permet de récuper les détails d'un produit en BD et d'envoyer le résultat aux clients
+     * 
+     * @Route("/api/products/{id}", name="products_show", methods={"GET"})
      */
-    public function showProduct(Product $product, SerializerInterface $serializer): Response
+    public function getProductAction(Product $product, SerializerInterface $serializer): Response
     {
-        $data = $serializer->serialize($product, "json");
-        
-        $response = new Response($data);
-        $response->headers->set("Content-Type", "application/json");
-
-        return $response;
+        return new JsonResponse($product);
     }
 }
