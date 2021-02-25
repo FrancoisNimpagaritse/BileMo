@@ -2,13 +2,25 @@
 
 namespace App\Entity;
 
-use App\Repository\ClientRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JsonSerializable;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ClientRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
+ * 
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "clients_show",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      )
+ * )
+ * 
+ * 
  */
 class Client
 {
@@ -80,4 +92,12 @@ class Client
 
         return $this;
     }
+/*
+    public function jsonSerialize(): array
+    {
+       return [
+           'id' => $this->getId(),
+           'email' => $this->getName(),
+       ];
+    } */
 }

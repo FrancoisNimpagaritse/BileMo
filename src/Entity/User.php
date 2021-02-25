@@ -2,20 +2,34 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use JMS\Serializer\Serializer;
 use Doctrine\ORM\Mapping as ORM;
-use JsonSerializable;
+use App\Repository\UserRepository;
+use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Security\Core\User\UserInterface;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * 
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "clients_users_show",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      )
+ * )
+ *
+ * 
  */
-class User implements UserInterface, JsonSerializable
+class User implements UserInterface
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *
      */
     private $id;
 
@@ -25,9 +39,9 @@ class User implements UserInterface, JsonSerializable
     private $email;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="string", length=255)
      */
-    private $roles = [];
+    private $role;
 
     /**
      * @var string The hashed password
@@ -37,6 +51,7 @@ class User implements UserInterface, JsonSerializable
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      */
     private $name;
 
@@ -76,19 +91,8 @@ class User implements UserInterface, JsonSerializable
      * @see UserInterface
      */
     public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
+    {        
+        return array_unique(array_merge(['ROLE_USER'], [$this->role]));
     }
 
     /**
@@ -145,14 +149,25 @@ class User implements UserInterface, JsonSerializable
         $this->client = $client;
 
         return $this;
+    }    
+
+    /**
+     * Get the value of role
+     */ 
+    public function getRole()
+    {
+        return $this->role;
     }
 
-    public function jsonSerialize(): array
+    /**
+     * Set the value of role
+     *
+     * @return  self
+     */ 
+    public function setRole($role)
     {
-       return [
-           'id' => $this->getId(),
-           'email' => $this->getEmail(),
-           'name' => $this->getName(),
-       ];
-    } 
+        $this->role = $role;
+
+        return $this;
+    }
 }
