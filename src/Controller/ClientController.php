@@ -3,14 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Client;
-use App\Repository\ClientRepository;
 use App\Repository\UserRepository;
+use App\Repository\ClientRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ClientController extends AbstractController
@@ -23,8 +22,10 @@ class ClientController extends AbstractController
     public function getClientsAction(ClientRepository $repo, SerializerInterface $serializer): Response
     {
         $clients = $repo->findAll();
-        
-        return new JsonResponse($clients);
+        $data = $serializer->serialize($clients, 'json');
+        return new Response($data,
+            Response::HTTP_OK
+        );
     }
 
     /**
@@ -39,9 +40,9 @@ class ClientController extends AbstractController
         $manager->persist($client);
         $manager->flush();
 
-        return new JsonResponse(
+        return new Response(
             $serializer->serialize($client, 'json'),
-            JsonResponse::HTTP_CREATED,
+            Response::HTTP_CREATED,
             [],
             true
         );
@@ -52,18 +53,14 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients/{id}", name="clients_show", methods={"GET"})
      */
-    public function getClientAction($id, ClientRepository $repo, SerializerInterface $serializer): Response
+    public function getClientAction(Client $client, SerializerInterface $serializer): Response
     {
-        $client = $repo->findOneById($id);
-        
-        $jsonResponse = new JsonResponse(
+        return new Response(
             $serializer->serialize($client, 'json'),
-            JsonResponse::HTTP_OK,
+            Response::HTTP_OK,
             [],
             true
         );
-
-        return $jsonResponse;
     }
     
     /**
@@ -71,16 +68,37 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients/{id}", name="clients_update", methods={"PUT"})
      */
-    public function edit(Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    public function putClientAction(Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
     {
         $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
         
-        //$manager->persist($client);
         $manager->flush();
 
-        $jsonResponse = new JsonResponse(
+        $jsonResponse = new Response(
             $serializer->serialize($client, 'json'),
-            JsonResponse::HTTP_CREATED,
+            Response::HTTP_CREATED,
+            [],
+            true
+        );
+
+        return $jsonResponse;
+    }
+
+    /**
+     * Permet de supprimer une ressource de type clients
+     * 
+     * @Route("/api/clients/{id}", name="clients_delete", methods={"DELETE"})
+     */
+    public function deleteAction(Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    {
+        $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
+        //vérifier ko ata users afise avant
+        $manager->remove($client);
+        $manager->flush();
+
+        $jsonResponse = new Response(
+            null,
+            Response::HTTP_OK,
             [],
             true
         );
