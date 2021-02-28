@@ -2,14 +2,19 @@
 
 namespace App\Entity;
 
-use JsonSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProductRepository;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @UniqueEntity(
+ * fields={"name"},
+ * message="Un produit possède déjà ce nom, merci de choisir un nom différent!"
+ * )
  */
-class Product implements JsonSerializable
+class Product
 {
     /**
      * @ORM\Id
@@ -20,6 +25,13 @@ class Product implements JsonSerializable
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom du produit est obligatoire !")
+     * @Assert\Length(
+     *     min = 5,
+     *     max = 255,
+     *     minMessage = "Le nom du produit doit avoir aumoins 5 caractères !",
+     *     maxMessage = "Le nom du produit est trop long."
+     * )
      */
     private $name;
 
@@ -72,15 +84,5 @@ class Product implements JsonSerializable
         $this->description = $description;
 
         return $this;
-    }
-
-    public function jsonSerialize(): array
-    {
-       return [
-           'id' => $this->getId(),
-           'name' => $this->getName(),
-           'description' => $this->getDescription(),
-           'price' => $this->getPrice(),
-       ];
     }
 }

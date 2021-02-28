@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +28,7 @@ class UserController extends AbstractController
         $users = $repoUser->findBy(['client' => $client->getId()]);
         
         return new Response(
-            $serializer->serialize($users, 'json'),
+            $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('list'))),
             Response::HTTP_OK,
             [],
             true
@@ -46,7 +47,7 @@ class UserController extends AbstractController
         $user = $repoUser->findOneBy(['client' => $client, 'id' => $id]);
                 
         $response = new Response(
-            $serializer->serialize($user, 'json'),
+            $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('list'))),
             Response::HTTP_OK,
             [],
             true

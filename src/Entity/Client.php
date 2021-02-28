@@ -2,15 +2,20 @@
 
 namespace App\Entity;
 
-use JsonSerializable;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ClientRepository;
+use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=ClientRepository::class)
+ * @ORM\Entity(repositoryClass=ClientRepository::class) * 
+ * @UniqueEntity(
+ * fields={"name"},
+ * message="Un autre client possède déjà ce nom, merci de choisir un nom différent!"
+ * )
  * 
  * @Hateoas\Relation(
  *      "self",
@@ -28,16 +33,20 @@ class Client
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Serializer\Groups({"list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom du client est obligatoire !")
+     * @Serializer\Groups({"list"})
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="client")
+     * @Serializer\Groups({"list"})
      */
     private $users;
 
