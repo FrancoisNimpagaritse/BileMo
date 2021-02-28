@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,7 +23,8 @@ class ClientController extends AbstractController
     public function getClientsAction(ClientRepository $repo, SerializerInterface $serializer): Response
     {
         $clients = $repo->findAll();
-        $data = $serializer->serialize($clients, 'json');
+        $data = $serializer->serialize($clients, 'json', SerializationContext::create()->setGroups(array('list')));
+        
         return new Response($data,
             Response::HTTP_OK
         );
@@ -56,7 +58,7 @@ class ClientController extends AbstractController
     public function getClientAction(Client $client, SerializerInterface $serializer): Response
     {
         return new Response(
-            $serializer->serialize($client, 'json'),
+            $serializer->serialize($client, 'json', SerializationContext::create()->setGroups(array('list'))),
             Response::HTTP_OK,
             [],
             true

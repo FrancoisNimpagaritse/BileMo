@@ -2,16 +2,21 @@
 
 namespace App\Entity;
 
-use JMS\Serializer\Serializer;
+//use JMS\Serializer\Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(
+ * fields={"email"},
+ * message="Un autre utilisateur possède déjà cet email, merci de choisir un autre!"
+ * )
  * 
  * @Hateoas\Relation(
  *      "self",
@@ -20,7 +25,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *          parameters = { "id" = "expr(object.getId())" }
  *      )
  * )
- *
+ * 
  * 
  */
 class User implements UserInterface
@@ -29,17 +34,22 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     *
+     * @Serializer\Groups({"list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\NotBlank(message="L'email est obligatoire !")
+     * @Assert\Email(message = "L'email saisi n'est pas valide!")
+     * 
+     * @Serializer\Groups({"list"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"list"})
      */
     private $role;
 
@@ -51,6 +61,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"list"})
      *
      */
     private $name;
