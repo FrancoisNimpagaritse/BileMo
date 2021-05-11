@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
@@ -20,9 +21,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * 
  * @Hateoas\Relation(
  *      "self",
- *      href = @Hateoas\Route(
- *          "clients_users_show",
- *          parameters = { "id" = "expr(object.getId())" }
+ *      href=@Hateoas\Route(
+ *          "clients_users",
+ *          parameters={"id" = "expr(object.getId())" },
+ *          absolute = true
  *      )
  * )
  * 
@@ -34,7 +36,7 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"list"})
+     * @Serializer\Groups({"listFull"})
      */
     private $id;
 
@@ -42,32 +44,34 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="L'email est obligatoire !")
      * @Assert\Email(message = "L'email saisi n'est pas valide!")
+     * @Serializer\Groups({"listFull"})
      * 
-     * @Serializer\Groups({"list"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\Groups({"list"})
+     * 
      */
     private $role;
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\Length(min=6, minMessage="Le mot de passe doit avoir aumoins 6 caractères")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\Groups({"list"})
-     *
+     * @Assert\NotBlank(message="Le nom complet de l'utilisateur est obligatoire !")
+     * @Serializer\Groups({"listFull"})
      */
     private $name;
 
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users")
+     * 
      */
     private $client;
 

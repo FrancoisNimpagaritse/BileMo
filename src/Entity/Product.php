@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProductRepository;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
@@ -13,6 +14,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * fields={"name"},
  * message="Un produit possède déjà ce nom, merci de choisir un nom différent!"
  * )
+ * 
+ * @Hateoas\Relation(
+ *      "self",
+ *      href=@Hateoas\Route(
+ *          "products_show",
+ *          parameters={"id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ * 
  */
 class Product
 {
