@@ -7,11 +7,12 @@ use App\Repository\ClientRepository;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=ClientRepository::class) * 
+ * @ORM\Entity(repositoryClass=ClientRepository::class) 
  * @UniqueEntity(
  * fields={"name"},
  * message="Un autre client possède déjà ce nom, merci de choisir un nom différent!"
@@ -19,9 +20,27 @@ use Symfony\Component\Validator\Constraints as Assert;
  * 
  * @Hateoas\Relation(
  *      "self",
- *      href = @Hateoas\Route(
+ *      href=@Hateoas\Route(
  *          "clients_show",
- *          parameters = { "id" = "expr(object.getId())" }
+ *          parameters={"id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "create",
+ *      href=@Hateoas\Route(
+ *          "clients_add",
+ *          absolute = true
+ *      )
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "update",
+ *      href=@Hateoas\Route(
+ *          "clients_update",
+ *          parameters={"id" = "expr(object.getId())" },
+ *          absolute = true
  *      )
  * )
  * 
@@ -33,20 +52,21 @@ class Client
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"list"})
+     * @Serializer\Groups({"listFull"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le nom du client est obligatoire !")
-     * @Serializer\Groups({"list"})
+     * @Assert\Length(min=2,minMessage="Le nom du client doit avoir aumoins {{ limit }} caractères !")
+     * @Serializer\Groups({"listFull"})
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="client")
-     * @Serializer\Groups({"list"})
+     * @Serializer\Groups({"listFull"})
      */
     private $users;
 
