@@ -4,13 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-//use Symfony\Component\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ProductController extends AbstractController
 {
@@ -20,15 +21,17 @@ class ProductController extends AbstractController
      * @Route("/api/products", name="products", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
-    public function getProductsAction(ProductRepository $repo, SerializerInterface $serializer): Response
+    public function getProductsAction(ProductRepository $repo, SerializerInterface $serializer, CacheInterface $cache): Response
     {
-        $products = $repo->findAll();
-        $data = $serializer->serialize($products, 'json');
+        $products = $cache->get('resultProducts', function(ItemInterface $item) use($repo){
+            $item->expiresAfter(3600);
 
-        return new Response(
-            $data,
-            Response::HTTP_OK
-        );
+            return $repo->findAll();
+        }); 
+
+        $data = $serializer->serialize($products, 'json');
+        
+        return new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     /**
@@ -39,9 +42,10 @@ class ProductController extends AbstractController
      */
     public function getProductAction(Product $product, SerializerInterface $serializer): Response
     {
+        if (!$product) {
+            throw new NotFoundHttpException("Ce produit n'existe pas !");
+        }
         $data = $serializer->serialize($product, 'json');
-        return new Response($data,
-            Response::HTTP_OK
-        );
+        return new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 }
