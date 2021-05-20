@@ -4,7 +4,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ClientRepository;
-use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -44,6 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      )
  * )
  * 
+ * @ExclusionPolicy("all")
  * 
  */
 class Client
@@ -52,7 +54,8 @@ class Client
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
+     * 
      */
     private $id;
 
@@ -60,13 +63,13 @@ class Client
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le nom du client est obligatoire !")
      * @Assert\Length(min=2,minMessage="Le nom du client doit avoir aumoins {{ limit }} caractères !")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="client")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
      */
     private $users;
 
@@ -121,12 +124,4 @@ class Client
 
         return $this;
     }
-/*
-    public function jsonSerialize(): array
-    {
-       return [
-           'id' => $this->getId(),
-           'email' => $this->getName(),
-       ];
-    } */
 }

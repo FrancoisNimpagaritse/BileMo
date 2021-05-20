@@ -21,7 +21,7 @@ Installation
 
     composer install
 
-4. Créez la base de données et importez le fichier snowtricks.sql présent à la racine (dans ce cas sauter l'étape 5) ou, taper la commande ci-dessous en vous plaçant dans le répertoire du projet :
+4. Créez la base de données et importez le fichier bilemo.sql présent à la racine (dans ce cas sauter l'étape 5) ou, taper la commande ci-dessous en vous plaçant dans le répertoire du projet :
     php bin/console doctrine:database:create
     
 5. Créez les différentes tables de la base de données en appliquant les migrations :

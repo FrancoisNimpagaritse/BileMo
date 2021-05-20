@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-//use JMS\Serializer\Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Exclude;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -25,9 +26,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "clients_users",
  *          parameters={"id" = "expr(object.getId())" },
  *          absolute = true
+ *      )    
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "client",
+ *      href=@Hateoas\Route(
+ *          "users_show",
+ *          parameters={"client_id" = "expr(object.getClient().getId())","id" = "expr(object.getId())"},
  *      )
  * )
  * 
+ * @ExclusionPolicy("all")
  * 
  */
 class User implements UserInterface
@@ -36,7 +46,7 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
      */
     private $id;
 
@@ -44,14 +54,14 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="L'email est obligatoire !")
      * @Assert\Email(message = "L'email saisi n'est pas valide!")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
      * 
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * 
+     * @Expose
      */
     private $role;
 
@@ -59,19 +69,20 @@ class User implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\Length(min=6, minMessage="Le mot de passe doit avoir aumoins 6 caractères")
+     * @Exclude
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le nom complet de l'utilisateur est obligatoire !")
-     * @Serializer\Groups({"listFull"})
+     * @Expose
      */
     private $name;
 
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users")
-     * 
+     * @Expose
      */
     private $client;
 

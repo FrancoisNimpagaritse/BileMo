@@ -8,7 +8,6 @@ use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,6 +16,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ClientController extends AbstractController
 {
@@ -25,15 +26,17 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients", name="clients_index", methods={"GET"})
      */
-    public function getClientsAction(ClientRepository $repo, SerializerInterface $serializer): Response
+    public function getClientsAction(ClientRepository $repo, SerializerInterface $serializer, CacheInterface $cache): Response
     {
-        $clients = $repo->findAll();
+        $clients = $cache->get('resultClients', function(ItemInterface $item)  use($repo){
+            $item->expiresAfter(3600);
 
-        $data = $serializer->serialize($clients, 'json', SerializationContext::create()->setGroups(array('listFull')));
-        
-        return new Response($data,
-            Response::HTTP_OK
-        );
+            return $repo->findAll();
+        });
+
+        $data = $serializer->serialize($clients, 'json');
+
+        return  new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     /**
@@ -61,12 +64,9 @@ class ClientController extends AbstractController
         $manager->persist($client);
         $manager->flush();
 
-        return new Response(
-            $serializer->serialize($client, 'json'),
-            Response::HTTP_CREATED,
-            [],
-            true
-        );
+        $data = $serializer->serialize($client, 'json');
+
+        return new Response($data, Response::HTTP_CREATED, ['Content-Type' => 'application/json']);
     }
 
     /**
@@ -74,18 +74,17 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients/{id}", name="clients_show", methods={"GET"})
      */
-    public function getClientAction(Client $client, SerializerInterface $serializer): Response
+    public function getClientAction($id, ClientRepository $repo, SerializerInterface $serializer): Response
     {
-        if(!$client) {
+        $client = $repo->findOneBy(['id' => $id]);
+
+        if (!$client) {
             throw new NotFoundHttpException("Ce client n'existe pas !");
         }
 
-        return new Response(
-            $serializer->serialize($client, 'json'),
-            Response::HTTP_OK,
-            [],
-            true
-        );
+        $data = $serializer->serialize($client, 'json');
+
+        return  new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
     
     /**
@@ -94,13 +93,15 @@ class ClientController extends AbstractController
      * @Route("/api/clients/{id}", name="clients_update", methods={"PUT"})
      * @IsGranted("ROLE_ADMIN")
      */
-    public function putClientAction( Client $client, Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    public function putClientAction($id, ClientRepository $repo, Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
     {
-        if(!$client) {
+        $client = $repo->findOneBy(['id' => $id]);
+        
+        if (!$client) {
             throw new NotFoundHttpException("Ce client n'existe pas !");
         }
 
-        if($client != $this->getUser()->getClient()){
+        if ($client != $this->getUser()->getClient()) {
             throw new AccessDeniedException("Vous n'avez pas le droit à cette ressource !");
          }
 
@@ -116,14 +117,9 @@ class ClientController extends AbstractController
         $manager->persist($client);
         $manager->flush();
 
-        $jsonResponse = new Response(
-            $serializer->serialize($client, 'json'),
-            Response::HTTP_OK,
-            [],
-            true
-        );
+        $data = $serializer->serialize($client, 'json');
 
-        return $jsonResponse;
+        return new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     /**
@@ -131,19 +127,20 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients/{id}", name="clients_delete", methods={"DELETE"})
      */
-    public function deleteAction(Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    public function deleteAction($id, ClientRepository $repo, SerializerInterface $serializer, EntityManagerInterface $manager): Response
     {
-        $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
-        //vérifier ko ata users afise avant if(count($client->getUsers()) > 0)
+        $client = $repo->findOneBy(['id' => $id]);
+
+        if (!$client) {
+            throw new NotFoundHttpException("Ce client n'existe pas !");
+        }
+       
+       if (count($client->getUsers()) > 0) {
+           throw new AccessDeniedException("Le client ne peut pas être supprimé car il a des utilisateurs !");
+       }
         $manager->remove($client);
         $manager->flush();
 
-        $jsonResponse = new Response(
-            null,
-            Response::HTTP_OK,
-            []
-        );
-
-        return $jsonResponse;
+        return new Response( null, Response::HTTP_OK, []);
     }
 }
