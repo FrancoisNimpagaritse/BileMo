@@ -17,6 +17,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
@@ -24,6 +27,17 @@ class UserController extends AbstractController
      * Permet de consulter la liste des utilisateurs inscrits liés à un client donné
      * 
      * @Route("/api/clients/{id}/users", name="clients_users", methods={"GET"})
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper les utilisateurs liés à un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function getUsersAction($id, UserRepository $repoUser, ClientRepository $repoClient, SerializerInterface $serializer): Response
     {
@@ -43,6 +57,17 @@ class UserController extends AbstractController
      * Permet de consulter les détails d'un utilisateur lié à un client
      * 
      * @Route("/api/clients/{client_id}/users/{id}", name="users_show", methods={"GET"})
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper les détails d'un utilisateur liés à un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function getUserAction(UserRepository $repoUser, ClientRepository $repoClient, $client_id, $id, SerializerInterface $serializer): Response
     {
@@ -68,6 +93,17 @@ class UserController extends AbstractController
      * 
      * @Route("/api/clients/{id}/users", name="clients_users_add", methods={"POST"})
      * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=201,
+     *     description="Permet de créer un utilisateur lié à un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function postUsersAction(Request $request, Client $client, SerializerInterface $serializer, UserPasswordEncoderInterface $encoder, EntityManagerInterface $manager, ValidatorInterface $validator): Response
     {     
@@ -99,8 +135,17 @@ class UserController extends AbstractController
      * Permet d'éditer une ressource utilisateur lié à un client
      * 
      * @Route("/api/clients/{client_id}/users/{id}", name="clients_users_edit", methods={"PUT"})
-     * @IsGranted("ROLE_USER")
      * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de modifier un utilisateur lié à un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function putUsersAction(Request $request, UserRepository $repoUser,ClientRepository $repoClient,
      $client_id, $id, SerializerInterface $serializer, UserPasswordEncoderInterface $encoder, 
@@ -159,6 +204,17 @@ class UserController extends AbstractController
      * 
      * @Route("/api/clients/{client_id}/users/{id}", name="clients_users_delete", methods={"DELETE"})
      * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de supprimer un utilisateur lié à un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function deleteUsersAction($id, $client_id, ClientRepository $clientRepo, UserRepository $userRepo, 
      EntityManagerInterface $manager): Response
