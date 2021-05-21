@@ -2,7 +2,7 @@ Projet 7 - Créez un web service exposant une API
 ================================================
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ce2fe25e99fb4451b60bf4f17a50863f)](https://www.codacy.com/gh/FrancoisNimpagaritse/BileMo/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FrancoisNimpagaritse/BileMo&amp;utm_campaign=Badge_Grade)
 
-Dans mon parcours de Développeur d'application PHP/Symfony chez OpenClassrooms j'ai créé une application d'un site communautaire de partage de figures de snowboard avec le framework Symfony. 
+Dans mon parcours de Développeur d'application PHP/Symfony chez OpenClassrooms j'ai créé une API REST avec le framework Symfony. 
 
 Informations sur l'environnement et outils utilisés durant le développement
 --------------------------------------------------------------------------- 
