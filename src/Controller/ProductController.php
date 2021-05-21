@@ -12,6 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class ProductController extends AbstractController
 {
@@ -19,7 +22,17 @@ class ProductController extends AbstractController
      * Permet de récuper la liste des produits en BD et d'envoyer le résultat aux clients
      * 
      * @Route("/api/products", name="products", methods={"GET"})
-     * @IsGranted("ROLE_USER")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper les produits",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     * @OA\Tag(name="products")
+     * @Security(name="Bearer")
      */
     public function getProductsAction(ProductRepository $repo, SerializerInterface $serializer, CacheInterface $cache): Response
     {
@@ -38,7 +51,17 @@ class ProductController extends AbstractController
      * Permet de récuper les détails d'un produit en BD et d'envoyer le résultat aux clients
      * 
      * @Route("/api/products/{id}", name="products_show", methods={"GET"})
-     * @IsGranted("ROLE_USER")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper les détails d'un produit",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     * @OA\Tag(name="products")
+     * @Security(name="Bearer")
      */
     public function getProductAction(Product $product, SerializerInterface $serializer): Response
     {

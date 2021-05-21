@@ -27,7 +27,9 @@ Installation
 5. Créez les différentes tables de la base de données en appliquant les migrations :
     php bin/console doctrine:migrations:migrate
 
-6. L'application est installé, vous pouvez commencer à travailler dessus !
+6. L'API est installé
+
+7. Vous pouvez commencer à exécuter des requêtes http avec postman ou un autre outil pour tester l'API !
 
 Bon travail
 -------------

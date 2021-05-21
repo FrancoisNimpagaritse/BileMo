@@ -18,13 +18,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class ClientController extends AbstractController
 {
     /**
      * Permet de récuper la liste des clients
-     * 
      * @Route("/api/clients", name="clients_index", methods={"GET"})
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper la liste des clients",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Client::class))
+     *     )
+     * )
+     * @OA\Tag(name="clients")
+     * @Security(name="Bearer")
+     * 
      */
     public function getClientsAction(ClientRepository $repo, SerializerInterface $serializer, CacheInterface $cache): Response
     {
@@ -44,6 +58,17 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients", name="clients_add", methods={"POST"})
      * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=201,
+     *     description="Permet d'ajouter un client",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Client::class))
+     *     )
+     * )
+     * @OA\Tag(name="clients")
+     * @Security(name="Bearer")
      */
     public function postClientsAction(Request $request, SerializerInterface $serializer, EntityManagerInterface $manager, ValidatorInterface $validator): Response
     {
@@ -72,7 +97,19 @@ class ClientController extends AbstractController
     /**
      * Permet de consulter les détails d'un client
      * 
-     * @Route("/api/clients/{id}", name="clients_show", methods={"GET"})
+     * @Route("/api/clients/{id<\d+>}", name="clients_show", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de récuper un client par son id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Client::class))
+     *     )
+     * )
+     * @OA\Tag(name="clients")
+     * @Security(name="Bearer")
      */
     public function getClientAction($id, ClientRepository $repo, SerializerInterface $serializer): Response
     {
@@ -88,10 +125,21 @@ class ClientController extends AbstractController
     }
     
     /**
-     * Permet d'ajouter une ressource de type clients
+     * Permet de modifier une ressource de type clients
      * 
-     * @Route("/api/clients/{id}", name="clients_update", methods={"PUT"})
+     * @Route("/api/clients/{id<\d+>}", name="clients_update", methods={"PUT"})
      * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de modifier un client par son id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Client::class))
+     *     )
+     * )
+     * @OA\Tag(name="clients")
+     * @Security(name="Bearer")
      */
     public function putClientAction($id, ClientRepository $repo, Request $request, SerializerInterface $serializer, EntityManagerInterface $manager): Response
     {
@@ -125,9 +173,21 @@ class ClientController extends AbstractController
     /**
      * Permet de supprimer une ressource de type clients
      * 
-     * @Route("/api/clients/{id}", name="clients_delete", methods={"DELETE"})
+     * @Route("/api/clients/{id<\d+>}", name="clients_delete", methods={"DELETE"})
+     * @IsGranted("ROLE_ADMIN")
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Permet de supprimer un client par son id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Client::class))
+     *     )
+     * )
+     * @OA\Tag(name="clients")
+     * @Security(name="Bearer")
      */
-    public function deleteAction($id, ClientRepository $repo, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    public function deleteAction($id, ClientRepository $repo, EntityManagerInterface $manager): Response
     {
         $client = $repo->findOneBy(['id' => $id]);
 
