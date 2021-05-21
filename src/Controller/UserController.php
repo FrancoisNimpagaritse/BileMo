@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Client;
-use App\Exception\ResourceValidationException;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use JMS\Serializer\SerializerInterface;
@@ -162,7 +161,7 @@ class UserController extends AbstractController
      * @IsGranted("ROLE_ADMIN")
      */
     public function deleteUsersAction($id, $client_id, ClientRepository $clientRepo, UserRepository $userRepo, 
-    SerializerInterface $serializer, EntityManagerInterface $manager): Response
+     EntityManagerInterface $manager): Response
     {
         $user = $userRepo->findOneBy(['id' => $id]);
 

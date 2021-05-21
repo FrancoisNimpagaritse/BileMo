@@ -127,7 +127,7 @@ class ClientController extends AbstractController
      * 
      * @Route("/api/clients/{id}", name="clients_delete", methods={"DELETE"})
      */
-    public function deleteAction($id, ClientRepository $repo, SerializerInterface $serializer, EntityManagerInterface $manager): Response
+    public function deleteAction($id, ClientRepository $repo, EntityManagerInterface $manager): Response
     {
         $client = $repo->findOneBy(['id' => $id]);
 
