@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,7 +40,8 @@ class UserController extends AbstractController
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function getUsersAction($id, UserRepository $repoUser, ClientRepository $repoClient, SerializerInterface $serializer): Response
+    public function getUsersAction($id, UserRepository $repoUser, ClientRepository $repoClient,
+    SerializerInterface $serializer, PaginatorInterface $paginator, Request $request): Response
     {
         $client = $repoClient->findOneById($id);
 
@@ -48,7 +50,9 @@ class UserController extends AbstractController
         }
 
         $users = $repoUser->findBy(['client' => $client->getId()]);
-        $data = $serializer->serialize($users, 'json');
+        $usersList = $paginator->paginate($users, $request->query->getInt('page', 1), 5);
+
+        $data = $serializer->serialize($usersList, 'json');
 
         return new Response($data, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }

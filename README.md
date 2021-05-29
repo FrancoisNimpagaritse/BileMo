@@ -27,9 +27,14 @@ Installation
 5. Créez les différentes tables de la base de données en appliquant les migrations :
     php bin/console doctrine:migrations:migrate
 
-6. L'API est installé
+6. L'API est installé et vousn pouvez consulter sa documlentation technique sur 
 
 7. Vous pouvez commencer à exécuter des requêtes http avec postman ou un autre outil pour tester l'API !
+8. Accédez à la documentation de l'API : 127.0.0.1:8000/api/doc (selon l'adresse d'hébergement de l'API)
+
+9. Se connecter et obtenir un token : Requête POST sur http://127.0.0.1:8000/login_check
+
+{"username": "franimpa@yahoo.fr", "password": "password"}
 
 Bon travail
 -------------
